@@ -1,0 +1,20 @@
+import { Router } from 'express';
+import authRoutes from './auth.routes';
+import leadsRoutes from './leads.routes';
+import companiesRoutes from './companies.routes';
+import pipelineRoutes from './pipeline.routes';
+import outreachRoutes from './outreach.routes';
+import analyticsRoutes from './analytics.routes';
+import agentsRoutes from './agents.routes';
+import healthRoutes from './health.routes';
+
+const router = Router();
+router.use('/health', healthRoutes);
+router.use('/auth', authRoutes);
+router.use('/leads', leadsRoutes);
+router.use('/companies', companiesRoutes);
+router.use('/pipeline', pipelineRoutes);
+router.use('/outreach', outreachRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/agents', agentsRoutes);
+export default router;

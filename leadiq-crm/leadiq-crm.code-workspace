@@ -1,0 +1,80 @@
+{
+  "folders": [
+    { "name": "Root", "path": "." },
+    { "name": "Backend (Node.js)", "path": "./backend" },
+    { "name": "Frontend (Next.js)", "path": "./frontend" },
+    { "name": "AI Agents (Python)", "path": "./ai-agents" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python"
+    },
+    "python.defaultInterpreterPath": "/usr/bin/python3"
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode-remote.remote-containers",
+      "ms-python.python",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "Prisma.prisma",
+      "bradlc.vscode-tailwindcss",
+      "ms-azuretools.vscode-docker",
+      "eamodio.gitlens"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Start All Services",
+        "type": "shell",
+        "command": "docker-compose up -d",
+        "group": "build",
+        "presentation": { "reveal": "always", "panel": "shared" }
+      },
+      {
+        "label": "Stop All Services",
+        "type": "shell",
+        "command": "docker-compose down",
+        "group": "build"
+      },
+      {
+        "label": "View Logs",
+        "type": "shell",
+        "command": "docker-compose logs -f",
+        "group": "test"
+      },
+      {
+        "label": "Run Migrations",
+        "type": "shell",
+        "command": "docker-compose exec backend npm run migrate",
+        "group": "build"
+      },
+      {
+        "label": "Seed Database",
+        "type": "shell",
+        "command": "docker-compose exec backend npm run seed",
+        "group": "build"
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+    
+      {
+        "name": "Attach to Backend",
+        "type": "node",
+        "request": "attach",
+        "port": 9229,
+        "restart": true,
+        "localRoot": "${workspaceFolder}/backend",
+        "remoteRoot": "/app"
+      }
+    ]
+  }
+}
