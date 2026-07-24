@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(USER)
+  avatar       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  leads        Lead[]
+  outreaches   Outreach[]
+  activities   Activity[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String?  @unique
+  industry    String?
+  size        String?
+  location    String?
+  description String?
+  website     String?
+  linkedin    String?
+  logoUrl     String?
+  revenue     String?
+  founded     Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leads       Lead[]
+
+  @@map("companies")
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String?
+  phone          String?
+  title          String?
+  linkedinUrl    String?
+  githubUrl      String?
+  twitterUrl     String?
+  source         LeadSource @default(MANUAL)
+  status         LeadStatus @default(NEW)
+  score          Int        @default(0)
+  scoreReason    String?
+  notes          String?
+  tags           String[]
+  pipelineStage  String     @default("discovery")
+  enriched       Boolean    @default(false)
+  enrichedAt     DateTime?
+  lastContactedAt DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  companyId      String?
+  company        Company?   @relation(fields: [companyId], references: [id])
+  ownerId        String?
+  owner          User?      @relation(fields: [ownerId], references: [id])
+  outreaches     Outreach[]
+  activities     Activity[]
+
+  @@map("leads")
+}
+
+enum LeadSource {
+  MANUAL
+  GITHUB
+  PRODUCT_HUNT
+  LINKEDIN
+  SERP
+  REFERRAL
+  WEBSITE
+  OTHER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+  NURTURING
+}
+
+model Outreach {
+  id         String         @id @default(cuid())
+  subject    String
+  body       String
+  status     OutreachStatus @default(DRAFT)
+  sentAt     DateTime?
+  openedAt   DateTime?
+  repliedAt  DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  leadId     String
+  lead       Lead           @relation(fields: [leadId], references: [id])
+  sentById   String?
+  sentBy     User?          @relation(fields: [sentById], references: [id])
+
+  @@map("outreaches")
+}
+
+enum OutreachStatus {
+  DRAFT
+  SENT
+  OPENED
+  REPLIED
+  BOUNCED
+  FAILED
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  type      ActivityType
+  title     String
+  body      String?
+  metadata  Json?
+  createdAt DateTime     @default(now())
+
+  leadId    String?
+  lead      Lead?        @relation(fields: [leadId], references: [id])
+  userId    String?
+  user      User?        @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}
+
+enum ActivityType {
+  EMAIL_SENT
+  EMAIL_OPENED
+  EMAIL_REPLIED
+  NOTE_ADDED
+  STATUS_CHANGED
+  STAGE_CHANGED
+  LEAD_CREATED
+  LEAD_ENRICHED
+  LEAD_SCORED
+  CALL_LOGGED
+  MEETING_LOGGED
+}
+
+model PipelineStage {
+  id       String @id @default(cuid())
+  name     String @unique
+  label    String
+  color    String
+  order    Int
+  isActive Boolean @default(true)
+
+  @@map("pipeline_stages")
+}

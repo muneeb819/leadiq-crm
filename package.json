@@ -1,0 +1,21 @@
+{
+  "name": "BD-crm",
+  "version": "1.0.0",
+  "description": "AI-Powered Business Development CRM",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "docker-compose up -d && docker-compose logs -f backend frontend ai-agents",
+    "dev:build": "docker-compose up -d --build",
+    "stop": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "db:migrate": "docker-compose exec backend npm run migrate",
+    "db:seed": "docker-compose exec backend npm run seed",
+    "db:reset": "docker-compose exec backend npm run db:reset",
+    "test": "docker-compose exec backend npm test && docker-compose exec ai-agents  npm test/ -v",
+    "ps": "docker-compose ps",
+    "shell:backend": "docker-compose exec backend sh",
+    "shell:agents": "docker-compose exec ai-agents bash",
+    "shell:postgres": "docker-compose exec postgres postgres -U BD-crm_user -d BD-crm"
+  }
+}

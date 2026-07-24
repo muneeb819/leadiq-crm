@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker-compose:up",
+      "type": "shell",
+      "command": "docker-compose up -d --build",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "docker-compose:down",
+      "type": "shell",
+      "command": "docker-compose down",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker-compose:logs",
+      "type": "shell",
+      "command": "docker-compose logs -f",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Migrate",
+      "type": "shell",
+      "command": "docker-compose exec backend npm run migrate",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Seed",
+      "type": "shell",
+      "command": "docker-compose exec backend npm run seed",
+      "problemMatcher": []
+    },
+    {
+      "label": "DB: Reset & Seed",
+      "type": "shell",
+      "command": "docker-compose exec backend npm run db:reset",
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": []
+    }
+  ]
+}
