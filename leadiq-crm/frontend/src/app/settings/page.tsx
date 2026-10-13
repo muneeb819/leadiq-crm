@@ -18,8 +18,8 @@ export default function SettingsPage() {
           <CardHeader><CardTitle className="flex items-center gap-2 text-base"><User className="w-4 h-4" />Profile</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div><Label>Full Name</Label><Input className="mt-1" defaultValue={user?.name} /></div>
-            <div><Label>Email</Label><Input className="mt-1" type="email" defaultValue={user?.email} disabled className="bg-gray-50" /></div>
-            <div><Label>Role</Label><Input className="mt-1" defaultValue={user?.role} disabled className="bg-gray-50" /></div>
+            <div><Label>Email</Label><Input className="mt-1 bg-gray-50" type="email" defaultValue={user?.email} disabled /></div>
+            <div><Label>Role</Label><Input className="mt-1 bg-gray-50" defaultValue={user?.role} disabled /></div>
             <Button className="bg-indigo-600 hover:bg-indigo-700">Save Changes</Button>
           </CardContent>
         </Card>

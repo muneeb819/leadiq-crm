@@ -22,6 +22,9 @@ GitHub: {lead.get('githubUrl', 'unknown')}
 Return JSON with keys: notes (string with enriched bio and insights), tags (array of 3-5 relevant tags like 'decision-maker', 'technical', 'startup', 'founder', 'enterprise')"""
 
         result = self.call_claude_json(SYSTEM, prompt)
+        if not isinstance(result, dict) or "error" in result:
+            err = result.get("error") if isinstance(result, dict) else "Unexpected response from model"
+            return {"error": err}
         return {
             "notes": result.get("notes", ""),
             "tags": result.get("tags", []),

@@ -22,6 +22,9 @@ Notes: {lead.get('notes', 'None')}
 Return JSON with: score (integer 0-100), reason (2-3 sentence explanation of the score)"""
 
         result = self.call_claude_json(SYSTEM, prompt)
+        if not isinstance(result, dict) or "error" in result:
+            err = result.get("error") if isinstance(result, dict) else "Unexpected response from model"
+            return {"error": err}
         score = result.get("score", 50)
         if isinstance(score, str):
             try:

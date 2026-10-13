@@ -26,6 +26,9 @@ Product being pitched: LeadIQ — an AI-powered CRM that helps sales teams disco
 Return JSON with: subject (string), body (string with \\n for line breaks)"""
 
         result = self.call_claude_json(SYSTEM, prompt)
+        if not isinstance(result, dict) or "error" in result:
+            err = result.get("error") if isinstance(result, dict) else "Unexpected response from model"
+            return {"error": err}
         return {
             "subject": result.get("subject", f"Quick question for {lead.get('firstName', 'you')}"),
             "body": result.get("body", "Hi,\n\nI came across your profile and thought LeadIQ could help your team close more deals.\n\nWould you be open to a 15-minute call?\n\nBest"),

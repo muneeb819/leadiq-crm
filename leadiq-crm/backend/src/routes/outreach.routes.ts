@@ -24,8 +24,14 @@ router.post('/draft', async (req: AuthRequest, res) => {
     const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { company: true } });
     if (!lead) return sendError(res, 'Lead not found', 404);
     const response = await axios.post(`${env.AI_AGENTS_URL}/outreach/draft`, { lead }, { timeout: 30000 });
-    sendSuccess(res, response.data);
-  } catch (err: any) { sendError(res, err.message); }
+    // The agent already wraps as { success, data } — unwrap once so the client
+    // receives { success, data: { subject, body } }, not a double-wrapped body.
+    const draft = response.data?.data ?? {};
+    if (response.data?.success !== true || !draft.subject || !draft.body) {
+      return sendError(res, 'AI agent could not produce a draft', 502);
+    }
+    sendSuccess(res, { subject: draft.subject, body: draft.body });
+  } catch (err: any) { sendError(res, err.message, err.status || 500); }
 });
 
 router.post('/send', async (req: AuthRequest, res) => {
