@@ -41,18 +41,35 @@ export const deleteLead = async (req: Request, res: Response) => {
   } catch (err: any) { sendError(res, err.message); }
 };
 
+/**
+ * The AI service wraps every payload as { success, data }. Unwrap it, and allowlist
+ * the fields we accept — never spread an upstream body into a Prisma write.
+ */
+const unwrapAgent = (body: any): any => {
+  if (!body || body.success !== true || !body.data) {
+    throw Object.assign(new Error(body?.message || 'AI agent returned no data'), { status: 502 });
+  }
+  return body.data;
+};
+
 export const enrichLead = async (req: Request, res: Response) => {
   try {
     const lead = await leadService.getLeadById(req.params.id);
     if (!lead) return sendError(res, 'Lead not found', 404);
     const response = await axios.post(`${env.AI_AGENTS_URL}/enrich`, { lead }, { timeout: 30000 });
+    const result = unwrapAgent(response.data);
+
+    if (result.error) return sendError(res, `Enrichment unavailable: ${result.error}`, 503);
+
+    // Explicit allowlist — the Lead model has no `success`/`data` columns.
     const enriched = await leadService.updateLead(req.params.id, {
-      ...response.data,
+      notes: typeof result.notes === 'string' ? result.notes : lead.notes,
+      tags: Array.isArray(result.tags) ? result.tags.map(String) : lead.tags,
       enriched: true,
       enrichedAt: new Date(),
     });
     sendSuccess(res, enriched);
-  } catch (err: any) { sendError(res, err.message); }
+  } catch (err: any) { sendError(res, err.message, err.status || 500); }
 };
 
 export const scoreLead = async (req: Request, res: Response) => {
@@ -60,12 +77,21 @@ export const scoreLead = async (req: Request, res: Response) => {
     const lead = await leadService.getLeadById(req.params.id);
     if (!lead) return sendError(res, 'Lead not found', 404);
     const response = await axios.post(`${env.AI_AGENTS_URL}/score`, { lead }, { timeout: 30000 });
+    const result = unwrapAgent(response.data);
+
+    if (result.error) return sendError(res, `Scoring unavailable: ${result.error}`, 503);
+
+    const score = Number(result.score);
+    if (!Number.isFinite(score)) {
+      return sendError(res, 'AI agent returned a non-numeric score', 502);
+    }
+
     const updated = await leadService.updateLead(req.params.id, {
-      score: response.data.score,
-      scoreReason: response.data.reason,
+      score: Math.max(0, Math.min(100, Math.round(score))),
+      scoreReason: typeof result.reason === 'string' ? result.reason : null,
     });
     sendSuccess(res, updated);
-  } catch (err: any) { sendError(res, err.message); }
+  } catch (err: any) { sendError(res, err.message, err.status || 500); }
 };
 
 export const getStats = async (req: Request, res: Response) => {

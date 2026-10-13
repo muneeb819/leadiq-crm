@@ -67,6 +67,10 @@ model Lead {
   notes          String?
   tags           String[]
   pipelineStage  String     @default("discovery")
+  // --- intent-monitoring fields ---
+  intentUrl      String?    // deep link to the original post/project
+  budget         String?    // as stated by the poster, e.g. "$2k fixed"
+  vertical       String?    // IT_SERVICES | AI_AUTOMATION | MARKETING | GRAPHIC_DESIGN | BUY_SELL
   enriched       Boolean    @default(false)
   enrichedAt     DateTime?
   lastContactedAt DateTime?
@@ -80,6 +84,12 @@ model Lead {
   outreaches     Outreach[]
   activities     Activity[]
 
+  @@index([email])
+  @@index([ownerId])
+  @@index([companyId])
+  @@index([vertical])
+  @@index([pipelineStage])
+  @@index([createdAt])
   @@map("leads")
 }
 
@@ -91,6 +101,10 @@ enum LeadSource {
   SERP
   REFERRAL
   WEBSITE
+  HACKERNEWS
+  REDDIT
+  FREELANCER
+  JOB_BOARD
   OTHER
 }
 
